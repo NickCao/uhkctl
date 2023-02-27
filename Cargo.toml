@@ -1,0 +1,13 @@
+[package]
+name = "uhkctl"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log = "*"
+anyhow = "*"
+hidapi = "*"
+env_logger = "*"
+num_enum = "*"
+thiserror = "*"
+byteorder = "*"
