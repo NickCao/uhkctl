@@ -134,6 +134,23 @@ impl UserConfig {
 }
 
 #[derive(Debug)]
+pub struct LayerConfig {
+    pub id: u8,
+    pub modules: Vec<ModuleConfig>,
+}
+
+impl LayerConfig {
+    pub fn deserialize(cursor: &mut UhkCursor) -> DeviceResult<Self> {
+        let id = cursor.read_u8()?;
+        let n = cursor.read_compact_length()?;
+        let modules = (0..n)
+            .map(|_| ModuleConfig::deserialize(cursor))
+            .try_collect()?;
+        Ok(Self { id, modules })
+    }
+}
+
+#[derive(Debug)]
 pub struct ModuleConfig {
     pub id: u8,
     pub key_actions: Vec<KeyAction>,
