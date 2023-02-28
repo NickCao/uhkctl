@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::{io::Read, path::StripPrefixError};
 
 use crate::{
     consts::KeystrokeActionFlag,
@@ -129,6 +129,35 @@ impl UserConfig {
             alphanumeric_segments_brighrness,
             key_backlight_brightness,
             mouse_config,
+        })
+    }
+}
+
+#[derive(Debug)]
+pub struct KeymapConfig {
+    pub abbr: String,
+    pub default: bool,
+    pub name: String,
+    pub desc: String,
+    pub layers: Vec<LayerConfig>,
+}
+
+impl KeymapConfig {
+    pub fn deserialize(cursor: &mut UhkCursor) -> DeviceResult<Self> {
+        let abbr = cursor.read_string()?;
+        let default = cursor.read_bool()?;
+        let name = cursor.read_string()?;
+        let desc = cursor.read_string()?;
+        let n = cursor.read_compact_length()?;
+        let layers = (0..n)
+            .map(|_| LayerConfig::deserialize(cursor))
+            .try_collect()?;
+        Ok(Self {
+            abbr,
+            default,
+            name,
+            desc,
+            layers,
         })
     }
 }

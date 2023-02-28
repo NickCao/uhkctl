@@ -2,7 +2,7 @@
 use anyhow::Result;
 use hidapi::HidApi;
 use uhkctl::{
-    config::{HardwareConfig, KeyAction, LayerConfig, ModuleConfig, UserConfig},
+    config::{HardwareConfig, KeyAction, KeymapConfig, LayerConfig, ModuleConfig, UserConfig},
     consts::{
         KeyActionId, KeystrokeActionFlag, KeystrokeType, MacroActionId, ModuleSlots, UsbVariables,
     },
@@ -107,15 +107,7 @@ fn main() -> Result<()> {
     let num_keymaps = cursor.read_compact_length().unwrap();
     dbg!(num_keymaps);
     for _ in 0..num_keymaps {
-        dbg!(cursor.read_string().unwrap()); // abbr
-        dbg!(cursor.read_bool().unwrap()); // default
-        dbg!(cursor.read_string().unwrap()); // name
-        dbg!(cursor.read_string().unwrap()); // desc
-        let num_layers = cursor.read_compact_length().unwrap();
-        dbg!(num_layers);
-        for _ in 0..num_layers {
-            dbg!(LayerConfig::deserialize(&mut cursor).unwrap());
-        }
+        dbg!(KeymapConfig::deserialize(&mut cursor).unwrap());
     }
 
     Ok(())
