@@ -2,7 +2,7 @@
 use anyhow::Result;
 use hidapi::HidApi;
 use uhkctl::{
-    config::{HardwareConfig, UserConfig},
+    config::{HardwareConfig, KeyAction, UserConfig},
     consts::{
         KeyActionId, KeystrokeActionFlag, KeystrokeType, MacroActionId, ModuleSlots, UsbVariables,
     },
@@ -122,53 +122,7 @@ fn main() -> Result<()> {
                 let ka_len = cursor.read_compact_length().unwrap();
                 dbg!(ka_len);
                 for _ in 0..ka_len {
-                    let ka_id = cursor.read_u8().unwrap(); // ka id
-                    dbg!(ka_id);
-                    match ka_id {
-                        _ if ka_id >= KeyActionId::KeystrokeAction.into()
-                            && ka_id < KeyActionId::LastKeystrokeAction.into() =>
-                        {
-                            dbg!("key");
-                            let flags = ka_id - u8::from(KeyActionId::NoneAction);
-                            dbg!(flags);
-                            let ty = flags >> 3 & 0b11;
-                            dbg!(ty);
-                            if flags & u8::from(KeystrokeActionFlag::Scancode) != 0 {
-                                let scancode = if ty == KeystrokeType::LongMedia.into() {
-                                    cursor.read_u16().unwrap()
-                                } else {
-                                    cursor.read_u8().unwrap() as u16
-                                };
-                                dbg!(scancode);
-                            }
-                            if flags & u8::from(KeystrokeActionFlag::ModifierMask) != 0 {
-                                let mask = cursor.read_u8().unwrap();
-                                dbg!(mask);
-                            }
-                            if flags & u8::from(KeystrokeActionFlag::SecondaryRoleAction) != 0 {
-                                let role = cursor.read_u8().unwrap();
-                                dbg!(role);
-                            }
-                        }
-                        _ if ka_id == KeyActionId::NoneAction.into() => (),
-                        _ if ka_id == KeyActionId::SwitchLayerAction.into() => {
-                            dbg!("switch layer");
-                            dbg!(cursor.read_u8().unwrap()); // layer
-                            dbg!(cursor.read_u8().unwrap()); // mode
-                        }
-                        _ if ka_id == KeyActionId::SwitchKeymapAction.into() => {
-                            dbg!("switch keymap");
-                            dbg!(cursor.read_u8().unwrap()); // keymap
-                        }
-                        _ if ka_id == KeyActionId::MouseAction.into() => {
-                            dbg!("mouse");
-                            dbg!(cursor.read_u8().unwrap()); // layer
-                        }
-                        _ => {
-                            dbg!(ka_id);
-                            unimplemented!()
-                        }
-                    }
+                    dbg!(KeyAction::deserialize(&mut cursor).unwrap());
                 }
             }
         }

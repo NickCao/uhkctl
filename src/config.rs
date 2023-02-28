@@ -1,6 +1,10 @@
 use std::io::Read;
 
-use crate::device::{DeviceResult, UhkCursor};
+use crate::{
+    consts::KeystrokeActionFlag,
+    consts::{KeyActionId, KeystrokeType},
+    device::{DeviceResult, UhkCursor},
+};
 
 #[derive(Debug)]
 pub struct HardwareConfig {
@@ -126,5 +130,61 @@ impl UserConfig {
             key_backlight_brightness,
             mouse_config,
         })
+    }
+}
+
+#[derive(Debug)]
+pub enum KeyAction {
+    None,
+    Keystroke(Option<u16>, Option<u8>, Option<u8>),
+    SwitchLayer(u8, u8),
+    SwitchKeymap(u8),
+    MouseAction(u8),
+    PlayMacroAction,
+}
+
+impl KeyAction {
+    pub fn deserialize(cursor: &mut UhkCursor) -> DeviceResult<Self> {
+        let action_id = cursor.read_u8()?;
+        if action_id == KeyActionId::NoneAction.into() {
+            Ok(Self::None)
+        } else if action_id >= KeyActionId::KeystrokeAction.into()
+            && action_id < KeyActionId::LastKeystrokeAction.into()
+        {
+            let flags = action_id - u8::from(KeyActionId::NoneAction);
+            let atype = flags >> 3 & 0b11;
+            let scancode = if flags & u8::from(KeystrokeActionFlag::Scancode) != 0 {
+                Some(if atype == KeystrokeType::LongMedia.into() {
+                    cursor.read_u16()?
+                } else {
+                    cursor.read_u8()?.into()
+                })
+            } else {
+                None
+            };
+            let mask = if flags & u8::from(KeystrokeActionFlag::ModifierMask) != 0 {
+                Some(cursor.read_u8()?)
+            } else {
+                None
+            };
+            let role = if flags & u8::from(KeystrokeActionFlag::SecondaryRoleAction) != 0 {
+                Some(cursor.read_u8()?)
+            } else {
+                None
+            };
+            Ok(Self::Keystroke(scancode, mask, role))
+        } else if action_id == KeyActionId::SwitchLayerAction.into() {
+            let layer = cursor.read_u8()?;
+            let mode = cursor.read_u8()?;
+            Ok(Self::SwitchLayer(layer, mode))
+        } else if action_id == KeyActionId::SwitchKeymapAction.into() {
+            let keymap = cursor.read_u8()?;
+            Ok(Self::SwitchKeymap(keymap))
+        } else if action_id == KeyActionId::MouseAction.into() {
+            let mouse = cursor.read_u8()?;
+            Ok(Self::MouseAction(mouse))
+        } else {
+            unimplemented!()
+        }
     }
 }
