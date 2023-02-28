@@ -8,7 +8,7 @@
       (system:
         let pkgs = import nixpkgs { inherit system; }; in with pkgs;{
           devShells.default = mkShell {
-            nativeBuildInputs = [ pkg-config ];
+            nativeBuildInputs = [ pkg-config cargo rustc rust-analyzer rustfmt clippy ];
             buildInputs = [ udev ];
             RUSTC_BOOTSTRAP = 1;
           };
