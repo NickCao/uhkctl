@@ -101,7 +101,6 @@ fn main() -> Result<()> {
                     unimplemented!()
                 }
             }
-            // do peek
         }
     }
 
