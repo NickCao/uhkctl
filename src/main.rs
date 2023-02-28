@@ -2,10 +2,11 @@
 use anyhow::Result;
 use hidapi::HidApi;
 use uhkctl::{
+    config::{HardwareConfig, UserConfig},
     consts::{
         KeyActionId, KeystrokeActionFlag, KeystrokeType, MacroActionId, ModuleSlots, UsbVariables,
     },
-    device::{Device, UhkCursor}, config::HardwareConfig,
+    device::{Device, UhkCursor},
 };
 
 fn main() -> Result<()> {
@@ -53,26 +54,8 @@ fn main() -> Result<()> {
         .load_config(uhkctl::consts::ConfigBufferId::ValidatedUserConfig)
         .unwrap();
     let mut cursor = UhkCursor::new(cfg);
-    dbg!(cursor.read_u16().unwrap()); // major
-    dbg!(cursor.read_u16().unwrap()); // minor
-    dbg!(cursor.read_u16().unwrap()); // patch
-    dbg!(cursor.read_u16().unwrap()); // length
-    dbg!(cursor.read_string().unwrap()); // name
-    dbg!(cursor.read_u16().unwrap()); // doubleTapSwitchLayerTimeout
-    dbg!(cursor.read_u8().unwrap()); // iconsAndLayerTextsBrightness
-    dbg!(cursor.read_u8().unwrap()); // alphanumericSegmentsBrightness
-    dbg!(cursor.read_u8().unwrap()); // keyBacklightBrightness
-    dbg!(cursor.read_u8().unwrap()); // mouseMoveInitialSpeed
-    dbg!(cursor.read_u8().unwrap()); // mouseMoveAcceleration
-    dbg!(cursor.read_u8().unwrap()); // mouseMoveDeceleratedSpeed
-    dbg!(cursor.read_u8().unwrap()); // mouseMoveBaseSpeed
-    dbg!(cursor.read_u8().unwrap()); // mouseMoveAcceleratedSpeed
-    dbg!(cursor.read_u8().unwrap()); // mouseScrollInitialSpeed
-    dbg!(cursor.read_u8().unwrap()); // mouseScrollAcceleration
-    dbg!(cursor.read_u8().unwrap()); //  mouseScrollDeceleratedSpeed
-    dbg!(cursor.read_u8().unwrap()); // mouseScrollBaseSpeed
-    dbg!(cursor.read_u8().unwrap()); //  mouseScrollAcceleratedSpeed
-                                     //
+    dbg!(UserConfig::deserialize(&mut cursor).unwrap());
+
     let num_modules = cursor.read_compact_length().unwrap();
     dbg!(num_modules);
     for i in 0..num_modules {
