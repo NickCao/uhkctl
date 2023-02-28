@@ -1,3 +1,4 @@
+#![feature(iterator_try_collect)]
 use hidapi::{DeviceInfo, HidApi};
 
 pub mod config;

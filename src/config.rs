@@ -134,6 +134,23 @@ impl UserConfig {
 }
 
 #[derive(Debug)]
+pub struct ModuleConfig {
+    pub id: u8,
+    pub key_actions: Vec<KeyAction>,
+}
+
+impl ModuleConfig {
+    pub fn deserialize(cursor: &mut UhkCursor) -> DeviceResult<Self> {
+        let id = cursor.read_u8()?;
+        let n = cursor.read_compact_length()?;
+        let key_actions = (0..n)
+            .map(|_| KeyAction::deserialize(cursor))
+            .try_collect()?;
+        Ok(Self { id, key_actions })
+    }
+}
+
+#[derive(Debug)]
 pub enum KeyAction {
     None,
     Keystroke(Option<u16>, Option<u8>, Option<u8>),

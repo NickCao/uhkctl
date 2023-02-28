@@ -2,7 +2,7 @@
 use anyhow::Result;
 use hidapi::HidApi;
 use uhkctl::{
-    config::{HardwareConfig, KeyAction, UserConfig},
+    config::{HardwareConfig, KeyAction, ModuleConfig, UserConfig},
     consts::{
         KeyActionId, KeystrokeActionFlag, KeystrokeType, MacroActionId, ModuleSlots, UsbVariables,
     },
@@ -117,13 +117,7 @@ fn main() -> Result<()> {
             dbg!(cursor.read_u8().unwrap()); // id
             let num_m = cursor.read_compact_length().unwrap();
             for _ in 0..num_m {
-                dbg!("module");
-                dbg!(cursor.read_u8().unwrap()); // id
-                let ka_len = cursor.read_compact_length().unwrap();
-                dbg!(ka_len);
-                for _ in 0..ka_len {
-                    dbg!(KeyAction::deserialize(&mut cursor).unwrap());
-                }
+                dbg!(ModuleConfig::deserialize(&mut cursor).unwrap());
             }
         }
     }
