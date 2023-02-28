@@ -1,7 +1,7 @@
 use crate::consts::{
     self, ConfigBufferId, DevicePropertyIds, ModulePropertyId, ModuleSlots, UsbVariables,
 };
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt, WriteBytesExt};
+use byteorder::{LittleEndian, ReadBytesExt};
 use hidapi::{HidDevice, HidError};
 use num_enum::TryFromPrimitiveError;
 use std::{cmp::min, io::Read, string::FromUtf8Error, time::Duration};
@@ -86,8 +86,8 @@ impl Device {
         let mut buf = vec![0u8; consts::MAX_PAYLOAD_SIZE];
         self.dev.read_timeout(&mut buf, 1000)?;
         Ok((
-            buf[1] as usize + (buf[2] as usize) << 8,
-            buf[3] as usize + (buf[4] as usize) << 8,
+            (buf[1] as usize + (buf[2] as usize)) << 8,
+            (buf[3] as usize + (buf[4] as usize)) << 8,
         ))
     }
     pub fn uptime(&self) -> DeviceResult<Duration> {
@@ -141,7 +141,7 @@ impl Device {
             halves_merged: buf[2] != 0,
             left_half_connected: buf[3] != 0,
             active_layer: buf[6] & 0x7f,
-            active_layer_toggled: buf[6] & 0x80 == 1,
+            active_layer_toggled: buf[6] & 0x80 != 0,
             left_half_slot: buf[3],
             left_module_slot: ModuleSlots::try_from(buf[4])?,
             right_module_slot: ModuleSlots::try_from(buf[5])?,
@@ -192,7 +192,7 @@ impl UhkCursor {
         }
     }
     pub fn read_string(&mut self) -> DeviceResult<String> {
-        let mut length = self.read_compact_length()?;
+        let length = self.read_compact_length()?;
         dbg!(length);
         let mut buf = vec![0u8; length as usize];
         self.cursor.read_exact(&mut buf)?;

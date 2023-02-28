@@ -2,9 +2,9 @@
 use anyhow::Result;
 use hidapi::HidApi;
 use uhkctl::{
-    config::{HardwareConfig, KeyAction, KeymapConfig, LayerConfig, ModuleConfig, UserConfig},
+    config::{HardwareConfig, KeymapConfig, UserConfig},
     consts::{
-        KeyActionId, KeystrokeActionFlag, KeystrokeType, MacroActionId, ModuleSlots, UsbVariables,
+        MacroActionId, ModuleSlots, UsbVariables,
     },
     device::{Device, UhkCursor},
 };
@@ -80,7 +80,7 @@ fn main() -> Result<()> {
         dbg!(cursor.read_string().unwrap()); // name
         let action_length = cursor.read_compact_length().unwrap();
         dbg!(action_length);
-        for j in 0..action_length {
+        for _j in 0..action_length {
             let id = cursor.read_u8().unwrap();
             dbg!(id);
             match id {
