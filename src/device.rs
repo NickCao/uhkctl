@@ -19,7 +19,7 @@ pub enum DeviceError {
     Utf8Error(#[from] FromUtf8Error),
 }
 
-type DeviceResult<T> = Result<T, DeviceError>;
+pub type DeviceResult<T> = Result<T, DeviceError>;
 
 pub struct Device {
     dev: HidDevice,

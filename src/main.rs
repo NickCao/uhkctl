@@ -5,7 +5,7 @@ use uhkctl::{
     consts::{
         KeyActionId, KeystrokeActionFlag, KeystrokeType, MacroActionId, ModuleSlots, UsbVariables,
     },
-    device::{Device, UhkCursor},
+    device::{Device, UhkCursor}, config::HardwareConfig,
 };
 
 fn main() -> Result<()> {
@@ -47,15 +47,7 @@ fn main() -> Result<()> {
         .load_config(uhkctl::consts::ConfigBufferId::HardwareConfig)
         .unwrap();
     let mut cursor = UhkCursor::new(cfg);
-    dbg!(cursor.read_string().unwrap()); // signature
-    dbg!(cursor.read_u8().unwrap()); // major
-    dbg!(cursor.read_u8().unwrap()); // minor
-    dbg!(cursor.read_u8().unwrap()); // patch
-    dbg!(cursor.read_u8().unwrap()); // brand
-    dbg!(cursor.read_u8().unwrap()); // device
-    dbg!(cursor.read_u32().unwrap()); // unique
-    dbg!(cursor.read_bool().unwrap()); // vendor mode
-    dbg!(cursor.read_bool().unwrap()); // iso
+    dbg!(HardwareConfig::deserialize(&mut cursor).unwrap());
 
     let cfg = device
         .load_config(uhkctl::consts::ConfigBufferId::ValidatedUserConfig)
